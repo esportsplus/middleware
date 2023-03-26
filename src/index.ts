@@ -17,6 +17,6 @@ export default <I, R>(...middleware: Middleware<I, R>[]) => {
         stack[i] = (input) => middleware[i](input, stack[i + 1] || error);
     }
 
-    return ((input) => stack[0](input)) as Next<I, R>;
+    return stack[0];
 };
 export { Middleware, Next };
