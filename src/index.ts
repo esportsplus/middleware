@@ -5,18 +5,19 @@ function error(): never {
     throw new Error('Middleware: middleware did not return a value');
 }
 
+function next<I, R>(i: number, middleware: Middleware<I, R>[]): Next<I, R> {
+    return (input) => middleware[i](
+        input,
+        ++i < middleware.length ? next(i, middleware) : error
+    );
+}
+
 
 export default <I, R>(...middleware: Middleware<I, R>[]) => {
     if (!middleware.length) {
         throw new Error('Middleware: middleware have not been defined');
     }
 
-    let stack: Next<I, R>[] = [];
-
-    for (let i = 0, n = middleware.length; i < n; i++) {
-        stack[i] = (input) => middleware[i](input, stack[i + 1] || error);
-    }
-
-    return stack[0];
+    return next(0, middleware);
 };
 export { Middleware, Next };
